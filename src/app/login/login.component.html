@@ -1,0 +1,39 @@
+<mat-toolbar color="primary">
+    <mat-toolbar-row>
+        <span>Autóalkatrész-nyilvántartó</span>
+    </mat-toolbar-row>
+</mat-toolbar>
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>Bejelentkezés</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <form *ngIf="!errorString">
+            <table cellspacing="0" class="center">
+                <tr>
+                    <td>
+                        <mat-form-field>
+                            <input matInput placeholder="Felhasználónév" [attr.disabled]="showSpinner" [(ngModel)]="username" name="username" required>
+                        </mat-form-field>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <mat-form-field style="float: left;">
+                            <input matInput placeholder="Jelszó" [attr.disabled]="showSpinner" [(ngModel)]="password"  [type]="passwordVisible ? 'text' : 'password'" name="password" required>
+                        </mat-form-field>
+                        <mat-icon class="placeholder" (click)="togglePassVisibility()">{{ passwordVisible ? 'visibility' : 'visibility_off' }}</mat-icon>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <span *ngIf="errorString" [style.color]="errorColor">
+            {{errorString}}
+        </span>
+        <h3 *ngIf="errorString">A <span style="color: red">*</span>-gal jelölt mezők kitöltése kötelező!</h3>
+    </mat-card-content>
+    <mat-spinner class="center" *ngIf="showSpinner" [diameter]="40"></mat-spinner>
+    <mat-card-actions *ngIf="!errorString">
+        <button mat-raised-button (click)="login()" color="primary">Bejelentkezés</button>
+    </mat-card-actions>
+</mat-card>

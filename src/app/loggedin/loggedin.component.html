@@ -1,0 +1,19 @@
+<mat-toolbar color="primary">
+    <span>Autóalkatrész-nyilvántartó</span>
+    <span class="spacer"></span>
+    <button mat-icon-button matTooltip="Kijelentkezés">
+      <mat-icon>logout</mat-icon>
+    </button>
+</mat-toolbar>
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>Sikeresen be vagy jelentkezve, mint {{ loggedInAs }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        Elérhető műveletek: <br/>
+
+        <button mat-icon-button matTooltip="Autók listázása">
+            <mat-icon class="large">commute</mat-icon>
+        </button>
+    </mat-card-content>
+</mat-card>
