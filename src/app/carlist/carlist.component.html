@@ -1,16 +1,16 @@
 <mat-toolbar color="primary">
     <span>Autóalkatrész-nyilvántartó</span>
     <button mat-icon-button matTooltip="Főoldalra való visszalépés">
-        <mat-icon>home</mat-icon>
+        <mat-icon (click)="navigateToHome()">home</mat-icon>
     </button>
     <span class="spacer"></span>
     <button mat-icon-button matTooltip="Kijelentkezés">
-      <mat-icon>logout</mat-icon>
+      <mat-icon (click)="handleRealLogout()">logout</mat-icon>
     </button>
 </mat-toolbar>
 <mat-card>
     <mat-card-header>
-        <mat-card-title>Sikeresen be vagy jelentkezve, mint {{ loggedInAs }}</mat-card-title>
+        <mat-card-title>Sikeresen be vagy jelentkezve, mint {{ getLoggedAsIn() }}</mat-card-title>
     </mat-card-header>
 
     <mat-card-content *ngIf="carEditActive.dbID">
@@ -20,42 +20,43 @@
         <input matInput placeholder="Autó adatbázisbeli ID-ja" disabled [(ngModel)]="carEditActive.dbID" name="dbID" required>
       </mat-form-field>
 
-      <mat-form-field class="center mat-form-1-custom">
-        <input matInput placeholder="Autó márkája" [(ngModel)]="carEditActive.brand" name="brand" required>
+      <mat-form-field class="center mat-form-1-custom" *ngIf="carEditActive.dbID == -1">
+        <input matInput placeholder="Autó márkája" [(ngModel)]="carEditActive.brand" name="brand" [attr.disabled]="showSpinner" required>
       </mat-form-field>
 
       <mat-form-field class="center mat-form-1-custom">
-        <input matInput placeholder="Autó modellneve" [(ngModel)]="carEditActive.modelData.modelName" name="modelName" required>
+        <input matInput placeholder="Autó modellneve" [(ngModel)]="carEditActive.modelData.modelName" name="modelName" [attr.disabled]="showSpinner" required>
       </mat-form-field>
 
       <mat-form-field class="center mat-form-1-custom">
-        <input matInput placeholder="Autó évjárata" [(ngModel)]="carEditActive.modelData.modelData.modelYear" name="modelYear" required>
+        <input matInput placeholder="Autó évjárata" [(ngModel)]="carEditActive.modelData.modelData.modelYear" name="modelYear" [attr.disabled]="showSpinner" required>
       </mat-form-field>
 
       <mat-form-field class="center mat-form-1-custom">
-        <input matInput placeholder="Autó motorkódja" [(ngModel)]="carEditActive.modelData.modelData.engineCode" name="engineCode" required>
+        <input matInput placeholder="Autó motorkódja" [(ngModel)]="carEditActive.modelData.modelData.engineCode" name="engineCode" [attr.disabled]="showSpinner" required>
       </mat-form-field>
 
       <mat-form-field class="center mat-form-1-custom">
-        <input matInput placeholder="Lóerő" [(ngModel)]="carEditActive.modelData.modelData.hp" name="hp" required>
+        <input matInput placeholder="Lóerő" [(ngModel)]="carEditActive.modelData.modelData.hp" name="hp" [attr.disabled]="showSpinner" required>
       </mat-form-field>
 
       <mat-form-field class="center mat-form-1-custom">
-        <input matInput placeholder="Nyomaték nm-ben" [(ngModel)]="carEditActive.modelData.modelData.nm" name="nm" required>
+        <input matInput placeholder="Nyomaték nm-ben" [(ngModel)]="carEditActive.modelData.modelData.nm" name="nm" [attr.disabled]="showSpinner" required>
       </mat-form-field>
 
       <mat-form-field class="center mat-form-1-custom">
-        <input matInput placeholder="Kivitel" [(ngModel)]="carEditActive.modelData.modelData.type" name="type" required>
+        <input matInput placeholder="Kivitel" [(ngModel)]="carEditActive.modelData.modelData.type" name="type" [attr.disabled]="showSpinner" required>
       </mat-form-field>
 
       <mat-spinner class="center" *ngIf="showSpinner" [diameter]="40"></mat-spinner>
+
       <mat-card-actions *ngIf="!errorString">
-          <button mat-raised-button (click)="true" color="primary">{{ carEditActive.dbID != -1 ? 'Jármű adatainak megváltoztatása' : 'Jármű hozzáadása' }}</button>
-          <button mat-raised-button (click)="carEditActive.dbID = 0;" color="primary">Visszalépés</button>
+          <button mat-raised-button (click)="!showSpinner && handleCarEditOrAddition()" color="primary">{{ carEditActive.dbID != -1 ? 'Jármű adatainak megváltoztatása' : 'Jármű hozzáadása' }}</button>
+          <button mat-raised-button (click)="!showSpinner && (carEditActive.dbID = 0)" color="primary">Visszalépés</button>
       </mat-card-actions>
     </mat-card-content>
 
-    <mat-card-content *ngIf="!carEditActive.dbID">
+    <mat-card-content *ngIf="!carEditActive.dbID && carBrands.length > 0">
         Válassz az alábbi elérhető márkák közül: <br>
 
         <mat-form-field style="width: 20%; margin-top: 1%;" class="center">
@@ -72,7 +73,7 @@
             <mat-icon matPrefix class="icon-inside-input">search</mat-icon>
         </mat-form-field>
 
-        <table mat-table [dataSource]="selectableVehicles" class="mat-elevation-z8" *ngIf="alreadySelectedBrand" style="max-width: 100%">
+        <table mat-table #carSelectTable [dataSource]="selectableVehicles" class="mat-elevation-z8" *ngIf="alreadySelectedBrand" style="max-width: 100%">
           <ng-container matColumnDef="carId">
             <th mat-header-cell *matHeaderCellDef>DBID</th>
             <td mat-cell *matCellDef="let element">{{element.carId}}</td>
@@ -110,15 +111,21 @@
 
           <ng-container matColumnDef="icons">
             <th mat-header-cell *matHeaderCellDef>Műveletek</th>
-            <td mat-cell *matCellDef="let element"><mat-icon matPrefix style="color: green" matTooltip="Autóhoz elérhető alkatrészek megtekintése">visibility</mat-icon> <mat-icon matPrefix color="primary" (click)="startCarEdit(element.carId)" matTooltip="Autó adatainak módosítása">edit</mat-icon><mat-icon matPrefix matTooltip="Autó törlése (Alkatrészeket is töröl, ha csak ehhez az autóhoz tartoztak!)">delete</mat-icon></td>
+            <td mat-cell *matCellDef="let element"><mat-icon matPrefix style="color: green" matTooltip="Autóhoz elérhető alkatrészek megtekintése">visibility</mat-icon> <mat-icon matPrefix color="primary" (click)="startCarEdit(element.carId)" matTooltip="Autó adatainak módosítása">edit</mat-icon><mat-icon matPrefix (click)="tryToDeleteVehicle(element)" matTooltip="Autó törlése (Alkatrészeket is töröl, ha csak ehhez az autóhoz tartoztak!)">delete</mat-icon></td>
           </ng-container>
         
           <tr mat-header-row *matHeaderRowDef="displayedColumnsInSelectableVehicles"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumnsInSelectableVehicles;"></tr>
         </table>
 
-        <mat-card-actions *ngIf="!errorString">
-          <button mat-raised-button (click)="enterCarAdd()" color="primary">Jármű hozzáadása</button>
-        </mat-card-actions>
+        <mat-spinner class="center" *ngIf="showSpinner" [diameter]="40"></mat-spinner>
     </mat-card-content>
+
+    <mat-card-content *ngIf="!carEditActive.dbID && !carBrands.length">
+      Mivel nincs még jármű az adatbázisban, ezért hozzá kell adnod egyet.
+    </mat-card-content>
+
+    <mat-card-actions *ngIf="!errorString && !carEditActive.dbID">
+      <button mat-raised-button (click)="enterCarAdd()" color="primary">Jármű hozzáadása</button>
+    </mat-card-actions>
 </mat-card>

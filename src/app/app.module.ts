@@ -16,10 +16,11 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSelectModule} from '@angular/material/select';
 import {FormsModule} from '@angular/forms';
-
+import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
 import { LoggedinComponent } from './loggedin/loggedin.component';
 import { CarlistComponent } from './carlist/carlist.component';
+import { SessionService } from './_providers/session';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { CarlistComponent } from './carlist/carlist.component';
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     MatToolbarModule,
@@ -45,7 +47,9 @@ import { CarlistComponent } from './carlist/carlist.component';
     MatSelectModule,
     FormsModule
   ],
-  providers: [],
-  bootstrap: [CarlistComponent]
+  providers: [
+    SessionService
+  ],
+  bootstrap: [AppComponent]
 })
 export class AppModule { }

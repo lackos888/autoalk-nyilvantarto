@@ -1,4 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AppRoutingModule } from '../app-routing.module';
+import { SessionService } from '../_providers/session';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +24,7 @@ export class LoginComponent implements OnInit
 
   errorTimeout: ReturnType<typeof setTimeout>;
 
-  constructor() 
+  constructor(private http: HttpClient, private router: Router, private sessionServiceInstance: SessionService) 
   { 
     this.username = "";
     this.password = "";
@@ -29,13 +33,18 @@ export class LoginComponent implements OnInit
     this.errorString = "";
     this.errorColor = "red";
     this.errorTimeout = setTimeout(() => {}, 0);
+
+    if(sessionServiceInstance.isAuthorized())
+    {
+      this.router.navigate(['/loggedin'], {});
+    }
   }
 
   ngOnInit(): void 
   {
   }
 
-  dropErrorMessage(errorMessage: string, errorColor = "red", timeout = 2500) : void
+  dropErrorMessage(errorMessage: string, errorColor = "red", timeout = 3000, callback: any = null) : void
   {
     this.errorColor = errorColor;
 
@@ -46,10 +55,15 @@ export class LoginComponent implements OnInit
     this.errorTimeout = setTimeout(() =>
     {
       this.errorString = "";
+
+      if(typeof(callback) === "function")
+      {
+        callback();
+      }
     }, timeout);
   }
 
-  login(): void 
+  async login(): Promise<void> 
   {
     if(this.showSpinner)
     {
@@ -77,6 +91,25 @@ export class LoginComponent implements OnInit
     }
 
     this.showSpinner = true;
+
+    const res = await this.sessionServiceInstance.tryToLogin(this.username, this.password);
+
+    this.showSpinner = false;
+
+    if(!res)
+    {
+      return this.dropErrorMessage("Hiba történt bejelentkezés közben!");
+    }
+
+    if(!res.successful)
+    {
+      return this.dropErrorMessage("Hiba történt bejelentkezés közben: " + res.possibleErrorString);
+    }
+
+    this.dropErrorMessage("Sikeresen bejelentkeztél!", "green", 3000, () =>
+    {
+      this.router.navigate(['/loggedin'], {});
+    });
   }
 
   togglePassVisibility(): void 

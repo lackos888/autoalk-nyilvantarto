@@ -30,7 +30,7 @@
         <span *ngIf="errorString" [style.color]="errorColor">
             {{errorString}}
         </span>
-        <h3 *ngIf="errorString">A <span style="color: red">*</span>-gal jelölt mezők kitöltése kötelező!</h3>
+        <h3 *ngIf="!errorString">A <span style="color: red">*</span>-gal jelölt mezők kitöltése kötelező!</h3>
     </mat-card-content>
     <mat-spinner class="center" *ngIf="showSpinner" [diameter]="40"></mat-spinner>
     <mat-card-actions *ngIf="!errorString">

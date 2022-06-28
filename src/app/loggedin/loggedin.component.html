@@ -2,7 +2,7 @@
     <span>Autóalkatrész-nyilvántartó</span>
     <span class="spacer"></span>
     <button mat-icon-button matTooltip="Kijelentkezés">
-      <mat-icon>logout</mat-icon>
+      <mat-icon (click)="this.sessionService.handleRealLogout()">logout</mat-icon>
     </button>
 </mat-toolbar>
 <mat-card>
@@ -13,7 +13,7 @@
         Elérhető műveletek: <br/>
 
         <button mat-icon-button matTooltip="Autók listázása">
-            <mat-icon class="large">commute</mat-icon>
+            <mat-icon class="large" (click)="navigateToCarlist()">commute</mat-icon>
         </button>
     </mat-card-content>
 </mat-card>
