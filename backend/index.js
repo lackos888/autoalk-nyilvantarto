@@ -93,7 +93,7 @@ async function handleArgvArguments(db)
         {
             if(args.length < 4)
             {
-                return console.log("Az adduser parameterhez szukseges felhasznalonev es jelszo paros!");
+                return console.log("A deleteuser parameterhez szukseges egy felhasznalonev!");
             }
 
             const user = args[3];
